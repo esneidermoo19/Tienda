@@ -2,13 +2,13 @@ from flask import Blueprint, render_template
 from sqlalchemy import func
 
 try:
+    from ..database import db
     from ..models.cliente import Cliente
     from ..models.venta import Venta
-    from ..database import db
 except ImportError:
+    from database import db
     from models.cliente import Cliente
     from models.venta import Venta
-    from database import db
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
