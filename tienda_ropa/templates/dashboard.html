@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tienda de Ropa</title>
+    <title>Dashboard - Tienda de Ropa (MVC)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -17,19 +17,19 @@
         <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Dashboard de Clientes & Ventas</h1>
-                <p class="text-sm text-gray-500">Métricas clave de consumo y hábitos de compra</p>
+                <p class="text-sm text-gray-500">Métricas procesadas con Flask & SQLAlchemy (Arquitectura MVC)</p>
             </div>
             <span class="bg-pink-100 text-pink-800 text-xs font-semibold px-3 py-1.5 rounded-full">Moda & Retail</span>
         </div>
 
-        <!-- Tarjetas de Métricas principales -->
+        <!-- Tarjetas de Métricas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-xl shadow-sm border">
                 <p class="text-xs uppercase font-semibold text-gray-400 mb-1">Total Clientes</p>
                 <p class="text-3xl font-extrabold text-gray-800">{{ data.metricas.total_clientes }}</p>
             </div>
             <div class="bg-white p-5 rounded-xl shadow-sm border">
-                <p class="text-xs uppercase font-semibold text-gray-400 mb-1">Clientes VIP / Recurrentes</p>
+                <p class="text-xs uppercase font-semibold text-gray-400 mb-1">Clientes VIP</p>
                 <p class="text-3xl font-extrabold text-indigo-600">{{ data.metricas.clientes_frecuentes }}</p>
             </div>
             <div class="bg-white p-5 rounded-xl shadow-sm border">
@@ -37,30 +37,27 @@
                 <p class="text-3xl font-extrabold text-emerald-600">${{ data.metricas.ticket_promedio }}</p>
             </div>
             <div class="bg-white p-5 rounded-xl shadow-sm border">
-                <p class="text-xs uppercase font-semibold text-gray-400 mb-1">Tasa de Devolución</p>
+                <p class="text-xs uppercase font-semibold text-gray-400 mb-1">Tasa Devolución</p>
                 <p class="text-3xl font-extrabold text-rose-500">{{ data.metricas.tasa_devolucion }}%</p>
             </div>
         </div>
 
         <!-- Gráficos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Ventas Mensuales -->
             <div class="bg-white p-5 rounded-xl shadow-sm border">
                 <h2 class="text-base font-bold text-gray-800 mb-4">Ingresos por Ventas ($)</h2>
                 <canvas id="chartVentas"></canvas>
             </div>
-
-            <!-- Preferencia por Categoría de Ropa -->
             <div class="bg-white p-5 rounded-xl shadow-sm border">
-                <h2 class="text-base font-bold text-gray-800 mb-4">Categorías Más Vendidas (%)</h2>
+                <h2 class="text-base font-bold text-gray-800 mb-4">Distribución por Categoría</h2>
                 <canvas id="chartCategorias"></canvas>
             </div>
         </div>
 
-        <!-- Tabla de Clientes Destacados -->
+        <!-- Tabla de Clientes Obtenidos del Modelo -->
         <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
             <div class="p-5 border-b bg-gray-50">
-                <h2 class="text-base font-bold text-gray-800">Clientes Recientes y Preferencias</h2>
+                <h2 class="text-base font-bold text-gray-800">Clientes Registrados en Base de Datos</h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -70,7 +67,7 @@
                             <th class="p-4">Cliente</th>
                             <th class="p-4">Categoría Preferida</th>
                             <th class="p-4">Segmento</th>
-                            <th class="p-4">Compras Realizadas</th>
+                            <th class="p-4">Compras</th>
                             <th class="p-4">Total Gastado</th>
                         </tr>
                     </thead>
@@ -104,9 +101,9 @@
 
     </div>
 
-    <!-- Script de Chart.js -->
+    <!-- Scripts de Chart.js -->
     <script>
-        // Gráfico de Ventas Mensuales (Barras)
+        // Gráfico de Ventas
         const ctxVentas = document.getElementById('chartVentas').getContext('2d');
         new Chart(ctxVentas, {
             type: 'bar',
@@ -115,14 +112,14 @@
                 datasets: [{
                     label: 'Ventas ($)',
                     data: {{ data.grafico_ventas_mensuales.ventas_dolares | tojson }},
-                    backgroundColor: '#ec4899', // Color Rosa/Magenta Moda
+                    backgroundColor: '#ec4899',
                     borderRadius: 6
                 }]
             },
             options: { responsive: true }
         });
 
-        // Gráfico de Categorías Preferidas (Dona)
+        // Gráfico de Categorías
         const ctxCategorias = document.getElementById('chartCategorias').getContext('2d');
         new Chart(ctxCategorias, {
             type: 'doughnut',
