@@ -1,16 +1,25 @@
 from functools import wraps
 from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
 from flask_login import login_user, logout_user, current_user
-from models.user import User
-from database import db
+
+try:
+    from models.user import User
+    from database import db
+except ImportError:
+    from tienda_ropa.models.user import User
+    from tienda_ropa.database import db
 
 auth_bp = Blueprint('auth', __name__)
 
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role != 'admin':
-            abort(403)
+        if not current_user.is_authenticated:
+            flash('Por favor inicia sesión con tu cuenta de administrador para acceder a esta página.', 'warning')
+            return redirect(url_for('auth.auth', tab='login', next=request.url))
+        if current_user.role != 'admin':
+            flash('Acceso restringido: Se requieren privilegios de Administrador.', 'error')
+            return redirect(url_for('dashboard.index'))
         return f(*args, **kwargs)
     return decorated_function
 

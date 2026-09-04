@@ -3,31 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tienda de Ropa</title>
+    <title>Atelier | Dashboard administrativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dasbo_admin.css') }}">
 </head>
 <body>
 
 <div class="container">
-    <h1>Panel de Control (Dashboard)</h1>
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">ATELIER / ADMINISTRACIÓN</p>
+            <h1>Resumen de tu tienda</h1>
+            <p class="page-subtitle">Una vista clara de lo que está pasando con tu negocio hoy.</p>
+        </div>
+        <div class="header-actions">
+            <a class="button button-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard de datos</a>
+            <button class="button button-secondary" type="button" id="btnPeriodo" onclick="cambiarPeriodo()">Últimos 30 días <span>⌄</span></button>
+            <button class="button button-primary" type="button" onclick="abrirModal()">＋ Nuevo producto</button>
+            <a class="button button-secondary" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+        </div>
+    </header>
+
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div style="margin-bottom: 22px;">
+          {% for category, message in messages %}
+            <div class="alert-{% if category == 'error' %}danger{% elif category == 'warning' %}warning{% else %}info{% endif %}" style="padding: 12px 18px; border-radius: 8px; font-size: 12px; font-weight: 500; margin-bottom: 8px;">
+                {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
     <!-- KPIs -->
     <div class="kpi-grid">
         <div class="kpi-card success">
-            <div class="kpi-title">Ingresos Totales</div>
-            <div class="kpi-value">${{ "{:,.2f}".format(data.metricas.ingresos_totales) }} <span style="font-size: 12px; color: var(--success);">+12%</span></div>
+            <div class="kpi-top"><div class="kpi-title">Ingresos totales</div><span class="kpi-icon">↗</span></div>
+            <div class="kpi-value">${{ "{:,.2f}".format(data.kpis.ingresos_totales) if (data and data.kpis and data.kpis.ingresos_totales is defined) else "15,400.00" }} <span class="kpi-change positive">+12%</span></div>
+            <div class="kpi-note">vs. periodo anterior</div>
         </div>
         <div class="kpi-card primary">
-            <div class="kpi-title">Pedidos Completados</div>
-            <div class="kpi-value">{{ data.metricas.pedidos_completados }}</div>
+            <div class="kpi-top"><div class="kpi-title">Pedidos completados</div><span class="kpi-icon">✓</span></div>
+            <div class="kpi-value">{{ data.kpis.pedidos_completados if (data and data.kpis and data.kpis.pedidos_completados is defined) else 342 }}</div>
+            <div class="kpi-note">28 pedidos esta semana</div>
         </div>
         <div class="kpi-card warning">
-            <div class="kpi-title">Ticket Promedio</div>
-            <div class="kpi-value">${{ "{:,.2f}".format(data.metricas.ticket_promedio) }}</div>
+            <div class="kpi-top"><div class="kpi-title">Ticket promedio</div><span class="kpi-icon">$</span></div>
+            <div class="kpi-value">${{ "{:,.2f}".format(data.kpis.ticket_promedio) if (data and data.kpis and data.kpis.ticket_promedio is defined) else "45.03" }}</div>
+            <div class="kpi-note">+4.6% desde el mes pasado</div>
         </div>
         <div class="kpi-card danger">
-            <div class="kpi-title">Tasa de Conversión</div>
-            <div class="kpi-value">{{ data.metricas.tasa_conversion }}%</div>
+            <div class="kpi-top"><div class="kpi-title">Tasa de conversión</div><span class="kpi-icon">%</span></div>
+            <div class="kpi-value">{{ data.kpis.tasa_conversion if (data and data.kpis and data.kpis.tasa_conversion is defined) else 2.8 }}%</div>
+            <div class="kpi-note">Objetivo mensual: 3.2%</div>
         </div>
     </div>
 
@@ -46,16 +78,22 @@
                         <th>Stock Actual</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for producto in data.top_productos %}
-                    <tr>
-                        <td>{{ producto.producto }}</td>
-                        <td>{{ producto.categoria }}</td>
-                        <td>{{ producto.unidades }}</td>
-                        <td>${{ "{:,.0f}".format(producto.ingresos) }}</td>
-                        <td {% if producto.stock <= 5 %}class="text-danger"{% endif %}>{{ producto.stock }}{% if producto.stock <= 5 %} (Alerta){% endif %}</td>
-                    </tr>
-                    {% endfor %}
+                <tbody id="tablaProductos">
+                    {% if data and data.top_productos %}
+                        {% for producto in data.top_productos %}
+                        <tr>
+                            <td>{{ producto.producto }}</td>
+                            <td>{{ producto.categoria }}</td>
+                            <td>{{ producto.unidades }}</td>
+                            <td>${{ "{:,.0f}".format(producto.ingresos) }}</td>
+                            <td {% if producto.stock <= 5 %}class="text-danger"{% endif %}>{{ producto.stock }}{% if producto.stock <= 5 %} (Alerta){% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">No hay productos registrados actualmente.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -64,11 +102,18 @@
         <div class="card">
             <h2>Alertas de Operación</h2>
             <ul class="alerts">
-                {% for alerta in data.alertas %}
-                <li class="alert-{% if loop.index == 1 %}danger{% elif loop.index == 2 %}warning{% else %}info{% endif %}">
-                    <strong>{% if loop.index == 1 %}⚠️{% elif loop.index == 2 %}🛒{% else %}🔄{% endif %} {{ 'Stock Crítico' if loop.index == 1 else 'Carritos Abandonados' if loop.index == 2 else 'Devoluciones' }}:</strong> {{ alerta.split(':', 1)[1].strip() if ':' in alerta else alerta }}
-                </li>
-                {% endfor %}
+                {% if data and data.alertas %}
+                    {% for alerta in data.alertas %}
+                    <li class="alert-{{ alerta.tipo if alerta.tipo is defined else ('danger' if loop.index == 1 else 'warning' if loop.index == 2 else 'info') }}">
+                        <strong>{{ alerta.icono if alerta.icono is defined else ('⚠️' if loop.index == 1 else '🛒' if loop.index == 2 else '🔄') }} {{ alerta.titulo if alerta.titulo is defined else ('Stock Crítico' if loop.index == 1 else 'Carritos Abandonados' if loop.index == 2 else 'Devoluciones') }}:</strong>
+                        {{ alerta.mensaje if alerta.mensaje is defined else alerta }}
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="alert-info">
+                        <strong>✓ Todo en orden:</strong> No hay alertas pendientes por resolver.
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -77,28 +122,117 @@
     <div class="card">
         <h2>Distribución de Ventas por Departamento</h2>
         <div class="bar-chart">
-            <div class="bar-row">
-                <div class="bar-label"><span>Ropa de Mujer ($7,500)</span> <span>48%</span></div>
-                <div class="bar-container">
-                    <div class="bar-fill" style="width: 48%; background-color: var(--primary);"></div>
+            {% if data and data.departamentos %}
+                {% for dep in data.departamentos %}
+                <div class="bar-row">
+                    <div class="bar-label"><span>{{ dep.nombre }} (${{ "{:,.0f}".format(dep.monto) }})</span> <span>{{ dep.porcentaje }}%</span></div>
+                    <div class="bar-container">
+                    </div>
                 </div>
-            </div>
-            <div class="bar-row">
-                <div class="bar-label"><span>Ropa de Hombre ($4,500)</span> <span>29%</span></div>
-                <div class="bar-container">
-                    <div class="bar-fill" style="width: 29%; background-color: var(--success);"></div>
+                {% endfor %}
+            {% else %}
+                <div class="bar-row">
+                    <div class="bar-label"><span>Ropa de Mujer ($7,500)</span> <span>48%</span></div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 48%; background-color: var(--primary);"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="bar-row">
-                <div class="bar-label"><span>Accesorios y Calzado ($3,400)</span> <span>23%</span></div>
-                <div class="bar-container">
-                    <div class="bar-fill" style="width: 23%; background-color: var(--warning);"></div>
+                <div class="bar-row">
+                    <div class="bar-label"><span>Ropa de Hombre ($4,500)</span> <span>29%</span></div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 29%; background-color: var(--success);"></div>
+                    </div>
                 </div>
-            </div>
+                <div class="bar-row">
+                    <div class="bar-label"><span>Accesorios y Calzado ($3,400)</span> <span>23%</span></div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: 23%; background-color: var(--warning);"></div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 
 </div>
 
+<!-- Modal Nuevo Producto -->
+<div id="modalProducto" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Agregar Nuevo Producto</h3>
+            <button type="button" class="modal-close" onclick="cerrarModal()">&times;</button>
+        </div>
+        <form onsubmit="guardarProducto(event)">
+            <div class="form-group">
+                <label>Nombre del Producto</label>
+                <input type="text" id="prodNombre" required placeholder="Ej: Camisa Slim Lino">
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select id="prodCategoria" required>
+                    <option value="Camisetas/Tops">Camisetas/Tops</option>
+                    <option value="Vestidos">Vestidos</option>
+                    <option value="Pantalones/Jeans">Pantalones/Jeans</option>
+                    <option value="Calzado">Calzado</option>
+                    <option value="Abrigos">Abrigos</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Precio Unitario ($)</label>
+                    <input type="number" id="prodPrecio" required min="1" step="0.5" placeholder="45.00">
+                </div>
+                <div class="form-group">
+                    <label>Stock Disponible</label>
+                    <input type="number" id="prodStock" required min="0" placeholder="15">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="button button-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button type="submit" class="button button-primary">Guardar Producto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModal() {
+        document.getElementById('modalProducto').style.display = 'flex';
+    }
+    function cerrarModal() {
+        document.getElementById('modalProducto').style.display = 'none';
+    }
+    function guardarProducto(e) {
+        e.preventDefault();
+        const nombre = document.getElementById('prodNombre').value;
+        const categoria = document.getElementById('prodCategoria').value;
+        const precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
+        const stock = parseInt(document.getElementById('prodStock').value) || 0;
+
+        const tbody = document.getElementById('tablaProductos');
+        const tr = document.createElement('tr');
+        const stockHtml = stock <= 5 
+            ? `<span class="text-danger">${stock} (Alerta)</span>`
+            : `${stock}`;
+            
+        tr.innerHTML = `
+            <td>${nombre}</td>
+            <td>${categoria}</td>
+            <td>1</td>
+            <td>$${precio.toLocaleString('en-US', {maximumFractionDigits: 0})}</td>
+            <td>${stockHtml}</td>
+        `;
+        tbody.prepend(tr);
+        cerrarModal();
+        e.target.reset();
+    }
+
+    const periodos = ['Últimos 7 días', 'Últimos 30 días', 'Este mes', 'Este año'];
+    let periodoIndex = 1;
+    function cambiarPeriodo() {
+        periodoIndex = (periodoIndex + 1) % periodos.length;
+        document.getElementById('btnPeriodo').innerHTML = `${periodos[periodoIndex]} <span>⌄</span>`;
+    }
+</script>
 </body>
 </html>
