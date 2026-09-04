@@ -1,6 +1,10 @@
-from database import db
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+
+try:
+    from ..database import db
+except ImportError:
+    from database import db
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'

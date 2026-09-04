@@ -1,8 +1,14 @@
 from functools import wraps
-from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
-from flask_login import login_user, logout_user, current_user
-from models.user import User
-from database import db
+
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_user, logout_user
+
+try:
+    from ..database import db
+    from ..models.user import User
+except ImportError:
+    from database import db
+    from models.user import User
 
 auth_bp = Blueprint('auth', __name__)
 
