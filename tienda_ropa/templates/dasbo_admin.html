@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Tienda de Ropa</title>
-    <link rel="stylesheet" href="dasbo_admin.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dasbo_admin.css') }}">
 </head>
 <body>
 
@@ -15,19 +15,19 @@
     <div class="kpi-grid">
         <div class="kpi-card success">
             <div class="kpi-title">Ingresos Totales</div>
-            <div class="kpi-value">$15,400 <span style="font-size: 12px; color: var(--success);">+12%</span></div>
+            <div class="kpi-value">${{ "{:,.2f}".format(data.metricas.ingresos_totales) }} <span style="font-size: 12px; color: var(--success);">+12%</span></div>
         </div>
         <div class="kpi-card primary">
             <div class="kpi-title">Pedidos Completados</div>
-            <div class="kpi-value">342</div>
+            <div class="kpi-value">{{ data.metricas.pedidos_completados }}</div>
         </div>
         <div class="kpi-card warning">
             <div class="kpi-title">Ticket Promedio</div>
-            <div class="kpi-value">$45.03</div>
+            <div class="kpi-value">${{ "{:,.2f}".format(data.metricas.ticket_promedio) }}</div>
         </div>
         <div class="kpi-card danger">
             <div class="kpi-title">Tasa de Conversión</div>
-            <div class="kpi-value">2.8%</div>
+            <div class="kpi-value">{{ data.metricas.tasa_conversion }}%</div>
         </div>
     </div>
 
@@ -47,41 +47,15 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for producto in data.top_productos %}
                     <tr>
-                        <td>Vestido Floral de Verano</td>
-                        <td>Mujer</td>
-                        <td>85</td>
-                        <td>$2,550</td>
-                        <td>12</td>
+                        <td>{{ producto.producto }}</td>
+                        <td>{{ producto.categoria }}</td>
+                        <td>{{ producto.unidades }}</td>
+                        <td>${{ "{:,.0f}".format(producto.ingresos) }}</td>
+                        <td {% if producto.stock <= 5 %}class="text-danger"{% endif %}>{{ producto.stock }}{% if producto.stock <= 5 %} (Alerta){% endif %}</td>
                     </tr>
-                    <tr>
-                        <td>Tenis Blancos Clásicos</td>
-                        <td>Calzado</td>
-                        <td>60</td>
-                        <td>$3,600</td>
-                        <td>25</td>
-                    </tr>
-                    <tr>
-                        <td>Camiseta Básica (Pack 3)</td>
-                        <td>Hombre</td>
-                        <td>55</td>
-                        <td>$1,100</td>
-                        <td>40</td>
-                    </tr>
-                    <tr>
-                        <td>Chaqueta Denim Oversize</td>
-                        <td>Mujer</td>
-                        <td>42</td>
-                        <td>$1,890</td>
-                        <td class="text-danger">4 (Alerta)</td>
-                    </tr>
-                    <tr>
-                        <td>Bolso Bandolera Cuero</td>
-                        <td>Accesorios</td>
-                        <td>30</td>
-                        <td>$1,500</td>
-                        <td>18</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -90,15 +64,11 @@
         <div class="card">
             <h2>Alertas de Operación</h2>
             <ul class="alerts">
-                <li class="alert-danger">
-                    <strong>⚠️ Stock Crítico:</strong> La "Chaqueta Denim Oversize" y el "Pantalón Cargo Beige (M)" tienen menos de 5 unidades. Reponer antes del fin de semana.
+                {% for alerta in data.alertas %}
+                <li class="alert-{% if loop.index == 1 %}danger{% elif loop.index == 2 %}warning{% else %}info{% endif %}">
+                    <strong>{% if loop.index == 1 %}⚠️{% elif loop.index == 2 %}🛒{% else %}🔄{% endif %} {{ 'Stock Crítico' if loop.index == 1 else 'Carritos Abandonados' if loop.index == 2 else 'Devoluciones' }}:</strong> {{ alerta.split(':', 1)[1].strip() if ':' in alerta else alerta }}
                 </li>
-                <li class="alert-warning">
-                    <strong>🛒 Carritos Abandonados:</strong> 45 usuarios dejaron artículos en las últimas 24 horas. Oportunidad para email con 10% de descuento.
-                </li>
-                <li class="alert-info">
-                    <strong>🔄 Devoluciones:</strong> 12 artículos devueltos esta semana. Principal motivo: "Talla incorrecta" en calzado. Actualizar guía de tallas.
-                </li>
+                {% endfor %}
             </ul>
         </div>
     </div>
