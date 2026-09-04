@@ -6,8 +6,8 @@ from sqlalchemy import func
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
-@dashboard_bp.route('/')
-def index():
+
+def _get_dashboard_data():
     # 1. Consultas y métricas principales
     total_clientes = Cliente.query.count()
     clientes_vip = Cliente.query.filter_by(segmento='VIP').count()
@@ -46,4 +46,14 @@ def index():
         "ultimos_clientes": [c.to_dict() for c in clientes]
     }
 
-    return render_template('dashboard.html', data=data)
+    return data
+
+
+@dashboard_bp.route('/')
+def index():
+    return render_template('dasbo_admin.html', data=_get_dashboard_data())
+
+
+@dashboard_bp.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html', data=_get_dashboard_data())

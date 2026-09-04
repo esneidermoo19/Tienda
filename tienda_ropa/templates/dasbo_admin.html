@@ -3,31 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tienda de Ropa</title>
-    <link rel="stylesheet" href="dasbo_admin.css">
+    <title>Atelier | Dashboard administrativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dasbo_admin.css') }}">
 </head>
 <body>
 
 <div class="container">
-    <h1>Panel de Control (Dashboard)</h1>
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">ATELIER / ADMINISTRACIÓN</p>
+            <h1>Resumen de tu tienda</h1>
+            <p class="page-subtitle">Una vista clara de lo que está pasando con tu negocio hoy.</p>
+        </div>
+        <div class="header-actions">
+            <a class="button button-secondary" href="{{ url_for('dashboard.dashboard') }}">Dashboard de datos</a>
+            <button class="button button-secondary" type="button">Últimos 30 días <span>⌄</span></button>
+            <button class="button button-primary" type="button">＋ Nuevo producto</button>
+        </div>
+    </header>
 
     <!-- KPIs -->
     <div class="kpi-grid">
         <div class="kpi-card success">
-            <div class="kpi-title">Ingresos Totales</div>
-            <div class="kpi-value">$15,400 <span style="font-size: 12px; color: var(--success);">+12%</span></div>
+            <div class="kpi-top"><div class="kpi-title">Ingresos totales</div><span class="kpi-icon">↗</span></div>
+            <div class="kpi-value">$15,400 <span class="kpi-change positive">+12%</span></div>
+            <div class="kpi-note">vs. periodo anterior</div>
         </div>
         <div class="kpi-card primary">
-            <div class="kpi-title">Pedidos Completados</div>
+            <div class="kpi-top"><div class="kpi-title">Pedidos completados</div><span class="kpi-icon">✓</span></div>
             <div class="kpi-value">342</div>
+            <div class="kpi-note">28 pedidos esta semana</div>
         </div>
         <div class="kpi-card warning">
-            <div class="kpi-title">Ticket Promedio</div>
+            <div class="kpi-top"><div class="kpi-title">Ticket promedio</div><span class="kpi-icon">$</span></div>
             <div class="kpi-value">$45.03</div>
+            <div class="kpi-note">+4.6% desde el mes pasado</div>
         </div>
         <div class="kpi-card danger">
-            <div class="kpi-title">Tasa de Conversión</div>
+            <div class="kpi-top"><div class="kpi-title">Tasa de conversión</div><span class="kpi-icon">%</span></div>
             <div class="kpi-value">2.8%</div>
+            <div class="kpi-note">Objetivo mensual: 3.2%</div>
         </div>
     </div>
 

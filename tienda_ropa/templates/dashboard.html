@@ -19,7 +19,10 @@
                 <h1 class="text-2xl font-bold text-gray-900">Dashboard de Clientes & Ventas</h1>
                 <p class="text-sm text-gray-500">Métricas procesadas con Flask & SQLAlchemy (Arquitectura MVC)</p>
             </div>
-            <span class="bg-pink-100 text-pink-800 text-xs font-semibold px-3 py-1.5 rounded-full">Moda & Retail</span>
+            <div class="flex items-center gap-3">
+                <a href="{{ url_for('dashboard.index') }}" class="bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-gray-200">Panel administrativo</a>
+                <span class="bg-pink-100 text-pink-800 text-xs font-semibold px-3 py-1.5 rounded-full">Moda & Retail</span>
+            </div>
         </div>
 
         <!-- Tarjetas de Métricas -->
