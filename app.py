@@ -2,27 +2,21 @@ import os
 
 from flask import Flask
 
-try:
-    from .database import db
-    from .models.cliente import Cliente
-    from .models.venta import Venta
-    from .controllers.dashboard_controller import dashboard_bp
-except ImportError:
-    from database import db
-    from models.cliente import Cliente
-    from models.venta import Venta
-    from controllers.dashboard_controller import dashboard_bp
+from tienda_ropa.database import db
+from tienda_ropa.models.cliente import Cliente
+from tienda_ropa.models.venta import Venta
+from tienda_ropa.controllers.dashboard_controller import dashboard_bp
 
 
 def create_app():
     app = Flask(
         __name__,
-        template_folder='templates',
-        static_folder='static'
+        template_folder='tienda_ropa/templates',
+        static_folder='tienda_ropa/static'
     )
 
     base_dir = os.path.abspath(os.path.dirname(__file__))
-    db_path = os.path.join(base_dir, 'instance', 'tienda_ropa.db')
+    db_path = os.path.join(base_dir, 'tienda_ropa', 'instance', 'tienda_ropa.db')
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
@@ -62,6 +56,7 @@ def seed_data():
 
 
 app = create_app()
+
 
 if __name__ == '__main__':
     app.run(debug=True)

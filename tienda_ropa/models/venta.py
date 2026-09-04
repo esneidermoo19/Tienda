@@ -1,5 +1,10 @@
-from database import db
 from datetime import datetime
+
+try:
+    from ..database import db
+except ImportError:
+    from database import db
+
 
 class Venta(db.Model):
     __tablename__ = 'ventas'
