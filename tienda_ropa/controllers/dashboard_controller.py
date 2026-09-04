@@ -1,19 +1,16 @@
 from flask import Blueprint, render_template
+from flask_login import login_required
+from models.cliente import Cliente
+from models.venta import Venta
+from database import db
 from sqlalchemy import func
-
-try:
-    from ..models.cliente import Cliente
-    from ..models.venta import Venta
-    from ..database import db
-except ImportError:
-    from models.cliente import Cliente
-    from models.venta import Venta
-    from database import db
+from controllers.auth_controller import admin_required
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
 
 @dashboard_bp.route('/')
+@login_required
 def index():
     total_clientes = Cliente.query.count()
     clientes_vip = Cliente.query.filter_by(segmento='VIP').count()
@@ -55,9 +52,15 @@ def index():
     return data
 
 
-@dashboard_bp.route('/')
-def index():
-    return render_template('dasbo_admin.html', data=_get_dashboard_data())
+@dashboard_bp.route('/admin')
+@dashboard_bp.route('/dasbo_admin')
+@admin_required
+def admin_dashboard():
+    total_clientes = Cliente.query.count()
+    clientes_vip = Cliente.query.filter_by(segmento='VIP').count()
+    promedio_venta = db.session.query(func.avg(Venta.monto)).scalar() or 0.0
+    ventas_totales = db.session.query(func.sum(Venta.monto)).scalar() or 0.0
+    pedidos_completados = db.session.query(func.count(Venta.id)).scalar() or 0
 
 
 @dashboard_bp.route('/dashboard')
