@@ -1,4 +1,8 @@
-from database import db
+try:
+    from ..database import db
+except ImportError:
+    from database import db
+
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
