@@ -1,9 +1,12 @@
 from datetime import datetime
 
 try:
-    from ..database import db
-except ImportError:
     from database import db
+except ImportError:
+    try:
+        from ..database import db
+    except (ImportError, ValueError):
+        from tienda_ropa.database import db
 
 
 class Venta(db.Model):

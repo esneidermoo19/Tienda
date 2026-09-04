@@ -1,4 +1,7 @@
-from database import db
+try:
+    from database import db
+except ImportError:
+    from tienda_ropa.database import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
