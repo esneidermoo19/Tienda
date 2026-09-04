@@ -1,12 +1,15 @@
 from flask import Blueprint, render_template
+from flask_login import login_required, current_user
 from models.cliente import Cliente
 from models.venta import Venta
 from database import db
 from sqlalchemy import func
+from controllers.auth_controller import admin_required
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/')
+@login_required
 def index():
     # 1. Consultas y métricas principales
     total_clientes = Cliente.query.count()
@@ -47,3 +50,8 @@ def index():
     }
 
     return render_template('dashboard.html', data=data)
+
+@dashboard_bp.route('/admin')
+@admin_required
+def admin_dashboard():
+    return render_template('dasbo_admin.html')

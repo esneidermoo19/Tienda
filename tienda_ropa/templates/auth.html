@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LuxeShop | Acceso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased h-screen flex">
+    <!-- Columna Izquierda: Banner -->
+    <div class="hidden lg:flex w-1/2 bg-gray-900 relative overflow-hidden items-center justify-center">
+        <img src="{{ url_for('static', filename='img/banner.jpg') }}" alt="Moda" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay">
+        <div class="relative z-10 text-center px-12 text-white">
+            <h1 class="text-5xl font-bold mb-4 tracking-tight">LuxeShop</h1>
+            <p class="text-xl font-light opacity-90">Explora la nueva colección de temporada.</p>
+        </div>
+    </div>
+
+    <!-- Columna Derecha: Formulario -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div class="w-full max-w-md glass-card p-8 rounded-2xl shadow-xl">
+            
+            <!-- Mensajes Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="mb-6 space-y-2">
+                  {% for category, message in messages %}
+                    <div class="p-3 rounded-lg text-sm font-medium
+                        {% if category == 'error' %}bg-red-50 text-red-600 border border-red-100{% endif %}
+                        {% if category == 'success' %}bg-green-50 text-green-600 border border-green-100{% endif %}
+                        {% if category == 'warning' %}bg-orange-50 text-orange-600 border border-orange-100{% endif %}">
+                        {{ message }}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <!-- Selector de Tabs -->
+            <div class="flex border-b border-gray-200 mb-8">
+                <button onclick="switchTab('login')" id="btn-login" class="flex-1 pb-3 font-semibold text-center {% if active_tab == 'login' %}border-b-2 border-black text-black{% else %}text-gray-400 hover:text-gray-600{% endif %} transition-all">Iniciar Sesión</button>
+                <button onclick="switchTab('register')" id="btn-register" class="flex-1 pb-3 font-semibold text-center {% if active_tab == 'register' %}border-b-2 border-black text-black{% else %}text-gray-400 hover:text-gray-600{% endif %} transition-all">Crear Cuenta</button>
+            </div>
+
+            <!-- Panel Login -->
+            <div id="panel-login" class="tab-content {% if active_tab == 'login' %}active{% endif %}">
+                <form action="{{ url_for('auth.auth') }}" method="POST">
+                    <input type="hidden" name="form_type" value="login">
+                    
+                    <div class="mb-5 flex bg-gray-100 p-1 rounded-xl">
+                        <label class="flex-1 text-center cursor-pointer relative">
+                            <input type="radio" name="role" value="client" class="peer sr-only" checked>
+                            <div class="py-2 text-sm font-medium text-gray-500 rounded-lg peer-checked:bg-white peer-checked:text-black peer-checked:shadow-sm transition-all">
+                                <i class="fa-solid fa-user mr-1.5"></i>Cliente
+                            </div>
+                        </label>
+                        <label class="flex-1 text-center cursor-pointer relative">
+                            <input type="radio" name="role" value="admin" class="peer sr-only">
+                            <div class="py-2 text-sm font-medium text-gray-500 rounded-lg peer-checked:bg-white peer-checked:text-black peer-checked:shadow-sm transition-all">
+                                <i class="fa-solid fa-shield-halved mr-1.5"></i>Administrador
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase">Correo electrónico</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" name="email" required class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black focus:ring-1 focus:ring-black outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase">Contraseña</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" name="password" required class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black focus:ring-1 focus:ring-black outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition-colors shadow-lg shadow-black/20">Ingresar</button>
+                </form>
+            </div>
+
+            <!-- Panel Registro -->
+            <div id="panel-register" class="tab-content {% if active_tab == 'register' %}active{% endif %}">
+                <form action="{{ url_for('auth.auth') }}" method="POST">
+                    <input type="hidden" name="form_type" value="register">
+                    
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase">Nombre completo</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-user"></i></span>
+                            <input type="text" name="name" required class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase">Correo electrónico (@gmail.com)</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" name="email" pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$" required class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase">Contraseña</label>
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" name="password" minlength="6" required class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:border-black outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition-colors shadow-lg shadow-black/20">Crear Cuenta</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            const btnLogin = document.getElementById('btn-login');
+            const btnReg = document.getElementById('btn-register');
+            const pLogin = document.getElementById('panel-login');
+            const pReg = document.getElementById('panel-register');
+
+            if(tab === 'login') {
+                btnLogin.classList.add('border-b-2', 'border-black', 'text-black');
+                btnLogin.classList.remove('text-gray-400');
+                btnReg.classList.remove('border-b-2', 'border-black', 'text-black');
+                btnReg.classList.add('text-gray-400');
+                pLogin.classList.add('active');
+                pReg.classList.remove('active');
+            } else {
+                btnReg.classList.add('border-b-2', 'border-black', 'text-black');
+                btnReg.classList.remove('text-gray-400');
+                btnLogin.classList.remove('border-b-2', 'border-black', 'text-black');
+                btnLogin.classList.add('text-gray-400');
+                pReg.classList.add('active');
+                pLogin.classList.remove('active');
+            }
+            
+            // Update URL query string silently
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tab);
+            window.history.pushState({}, '', url);
+        }
+    </script>
+</body>
+</html>
